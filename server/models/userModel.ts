@@ -22,9 +22,13 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:'https://res.cloudinary.com/sut/image/upload/v1634407261/istockphoto-1323490923-170667a_kzjwms.jpg'
     },
+    role:{
+        type:String,
+        default:'user'//admin
+    },
     type:{
         type:String,
-        default:'normal'
+        default:'normal'//fast
     }
 },{
     timestamps:true
