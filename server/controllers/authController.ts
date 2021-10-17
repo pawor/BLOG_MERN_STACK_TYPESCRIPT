@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 import Users from '../models/userModel'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import sendMail from '../config/sendMail'
+import { validateEmail, validPhone } from '../middleware/valid'
+import { sendSms} from '../config/sendSMS'
 import { generateActiveToken } from '../config/generateToken'
+
+const CLIENT_URL = `${process.env.BASE_URL}`
 
 const authController = {
     register: async(req:Request,res:Response) => {
@@ -17,13 +22,16 @@ const authController = {
             const newUser = {name, account, password: passwordHash}
 
             const active_token = generateActiveToken(newUser)
+            const url = `${CLIENT_URL}/active/${active_token}`
 
-            res.json({
-                status:'OK',
-                msg:'Register successfully.', 
-                data:newUser,
-                active_token
-            })
+            if(validateEmail(account)){
+                sendMail(account,url,'Verify your email address')
+                return res.json({msg:"Success! Please check your email."})
+                
+            }else if(validPhone(account)){
+                sendSms(account,url,"Verify your phone number")
+                return res.json({msg:"Success! Please check phone."})
+            }
         }catch(err){
             return res.status(500).json(err)
         }
